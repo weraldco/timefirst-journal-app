@@ -1,4 +1,4 @@
-import prisma from '../config/database';
+import {prisma} from '../config/database';
 
 export interface JournalDataT {
   title: string;
@@ -19,11 +19,9 @@ export interface UpdateJournalDataT {
 export const journalService = {
   // GET - Get all journal posts
   getAll: async () => {
-    return await prisma.journal.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+
+    return await prisma.journal.findMany();
+   
   },
 
   // GET - Get single journal by id

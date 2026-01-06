@@ -7,6 +7,7 @@ export const journalController = {
   getAll: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const journalPosts = await journalService.getAll();
+      console.log('data', journalPosts)
       res.status(200).json({
         success: true,
         data: journalPosts,
