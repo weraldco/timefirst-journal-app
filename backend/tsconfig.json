@@ -1,0 +1,34 @@
+{
+	"compilerOptions": {
+		// File Layout
+		"rootDir": "./src",
+		"outDir": "./dist",
+
+		// Environment Settings
+		"module": "CommonJS",
+		"target": "esnext",
+		"lib": ["esnext"],
+		"types": ["node"],
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		// Other Outputs
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+
+		// Stricter Typechecking Options
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+
+		// Style Options
+		"noFallthroughCasesInSwitch": true,
+
+		// Recommended Options
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"moduleDetection": "force"
+	},
+	"include": ["src/**/*", "lib/**/*", "types"], // <-- ADD THIS LINE
+	"exclude": ["node_modules", "dist"]
+}
