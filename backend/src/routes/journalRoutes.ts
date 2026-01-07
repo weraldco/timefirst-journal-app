@@ -1,5 +1,3 @@
-
-
 import { Router } from 'express';
 import { journalController } from '../controllers/journalController';
 const router = Router();
