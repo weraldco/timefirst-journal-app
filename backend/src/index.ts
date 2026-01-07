@@ -5,6 +5,7 @@ import express, { Request, Response } from 'express';
 import { prisma } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
+import authRoutes from './routes/authRoutes';
 import journalRoutes from './routes/journalRoutes';
 import { logger } from './utils/logger';
 
@@ -39,6 +40,7 @@ app.get('/', async (req: Request, res: Response) => {
 });
 // API routes
 app.use('/api/journal', journalRoutes);
+app.use('/api/auth', authRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFound);
