@@ -87,11 +87,11 @@ export const signIn = async (req: Request, res: Response) => {
 				body: JSON.stringify({ email, password }),
 			}
 		);
-
+		console.log(response);
 		if (!response.ok) {
 			const errorData: any = await response.json();
 			return res.status(response.status).json({
-				error: 'Incorrect email or password',
+				error: errorData.error_description || 'Incorrect email or password',
 			});
 		}
 		const data = (await response.json()) as SupabaseTokenResponse;
