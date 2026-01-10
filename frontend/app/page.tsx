@@ -1,21 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './context/AuthContext';
+import { useAuthGuard } from "./hook/use-auth-guard";
+
 
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
-
+  useAuthGuard({redirectIfAuthenticated:true, redirectPath:"/dashboard"})
+  useAuthGuard({redirectIfNotAuthenticated:true, redirectPath:"/login"})
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">

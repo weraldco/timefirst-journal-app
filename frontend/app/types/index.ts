@@ -4,6 +4,10 @@ export interface User {
   email: string;
 }
 
+export interface FetchData {
+  success:boolean;
+  data:Journal[]
+}
 export interface Journal {
   id: string;
   title: string;

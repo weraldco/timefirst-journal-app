@@ -4,30 +4,48 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '../lib/schemas';
-import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { toast } from 'sonner';
+import { useAuthGuard } from '../hook/use-auth-guard';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
   const [error, setError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const {
+  useAuthGuard({
+    redirectIfAuthenticated: true,
+    redirectPath: '/dashboard'
+  })
+
+  const { 
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  });
+  });     
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (value: LoginFormData) => {
     setError('');
-    const success = await login(data.email, data.password);
-    if (success) {
-      router.push('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    // setIsLoading(true);
+    try {
+      const {data,error} = await supabase.auth.signInWithPassword({email:value.email, password:value.password})
+      console.log('Data', data)
+
+    if(error) {
+      toast.error("Login Error", {description: error.message})
+      return;
     }
+
+    toast.success("Success!", {description:"Successfully logged in!"})
+    router.push("/")
+    router.refresh();
+    } catch (error) {
+      
+    }
+   
   };
 
   return (
