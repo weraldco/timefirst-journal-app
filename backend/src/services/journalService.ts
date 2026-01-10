@@ -18,14 +18,17 @@ export interface UpdateJournalDataT {
 
 export const journalService = {
 	// GET - Get all journal posts
-	getAll: async () => {
-		return await prisma.journal.findMany();
+	getAll: async (userId: string) => {
+		return await prisma.journal.findMany({
+			where: { userId },
+			orderBy: { createdAt: 'desc' },
+		});
 	},
 
 	// GET - Get single journal by id
-	getById: async (id: string) => {
+	getById: async (id: string, userId: string) => {
 		const journalPost = await prisma.journal.findUnique({
-			where: { id },
+			where: { id, userId },
 		});
 
 		if (!journalPost) {

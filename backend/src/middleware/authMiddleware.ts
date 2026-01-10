@@ -7,8 +7,13 @@ export const authMiddleware = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const token = req.cookies.access_token;
+	const authHeader = req.headers.authorization;
+	if(!authHeader?.startsWith('Bearer ')) {
+		return res.status(401).json({error: "No token provided"})
+	}
+	const token = authHeader.split(' ')[1];
 	if (!token) return res.status(401).json({ error: 'Not authenticated' });
+	
 	try {
 		const {
 			data: { user },

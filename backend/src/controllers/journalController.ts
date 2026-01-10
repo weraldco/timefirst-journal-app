@@ -3,10 +3,14 @@ import { ApiError } from '../middleware/errorHandler';
 import { journalService } from '../services/journalService';
 
 export const journalController = {
-	// GET - Get all examples
+	// GET - Get all journal
 	getAll: async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const journalPosts = await journalService.getAll();
+			const userId = req.user?.id;
+			if (!userId) {
+				return res.status(401).json({ error: 'User Unauthorized' });
+			}
+			const journalPosts = await journalService.getAll(userId);
 			console.log('data', journalPosts);
 			res.status(200).json({
 				success: true,
@@ -20,13 +24,14 @@ export const journalController = {
 	// GET - Get single example by id
 	getById: async (req: Request, res: Response, next: NextFunction) => {
 		try {
+			const userId = req.user?.id;
 			const { id } = req.params;
-			if (!id) {
+			if (!id || !userId) {
 				return res
 					.status(400)
 					.json({ status: false, message: 'missing ID parameter' });
 			}
-			const journalPosts = await journalService.getById(id);
+			const journalPosts = await journalService.getById(id, userId);
 			res.status(200).json({
 				success: true,
 				data: journalPosts,
@@ -45,7 +50,8 @@ export const journalController = {
 	// POST - Create new example
 	create: async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { title, content, mood, tags, userId } = req.body;
+			const userId = req.user?.id as string;
+			const { title, content, mood, tags } = req.body;
 			if (!title || !content || !mood) {
 				return res.status(401).json({ error: 'All fields are required' });
 			}
@@ -55,7 +61,7 @@ export const journalController = {
 				content,
 				mood,
 				tags,
-				userId,
+				userId: userId,
 			});
 			res.status(201).json({
 				success: true,
