@@ -17,7 +17,7 @@ app.use(
 	cors({
 		origin: ['http://localhost:3000'],
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 		credentials: true,
 	})
 );
@@ -33,10 +33,6 @@ app.get('/', async (req: Request, res: Response) => {
 		message: 'API Gateway is running',
 		timestamp: new Date().toISOString(),
 	});
-
-	console.log('DATABASE_URL:', process.env.DATABASE_URL);
-	const journals = await prisma.journal.findMany();
-	console.log(journals);
 });
 // API routes
 app.use('/api/journal', journalRoutes);

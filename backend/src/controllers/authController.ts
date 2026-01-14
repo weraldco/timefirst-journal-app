@@ -71,11 +71,17 @@ export const signUp = async (req: Request, res: Response) => {
 };
 // Sign-in
 export const signIn = async (req: Request, res: Response) => {
+	// Get the request body {email and password}
 	const { email, password } = req.body;
+	// Then check if the email and password is empty or missing
 	if (!email || !password)
+		// If email or password is missing return an error.
 		return res.status(400).json({ error: 'Missing email or password' });
 
+	// If email and password is not missing proceed here.
 	try {
+		// fetch tje supabase URL that grant password, with credetial/option
+		// using your password and email
 		const response = await fetch(
 			`${process.env.SUPABASE_URL}/auth/v1/token?grant_type=password`,
 			{
@@ -87,14 +93,19 @@ export const signIn = async (req: Request, res: Response) => {
 				body: JSON.stringify({ email, password }),
 			}
 		);
-		console.log(response);
+
+		// If response has error and everything is not pass return an error.
 		if (!response.ok) {
 			const errorData: any = await response.json();
 			return res.status(response.status).json({
 				error: errorData.error_description || 'Incorrect email or password',
 			});
 		}
+
+		// If everithing in response is okay, get the data
 		const data = (await response.json()) as SupabaseTokenResponse;
+
+		// If data has error, then return it as 401
 		if (data.error)
 			return res.status(401).json({ error: data.error_description });
 
@@ -137,17 +148,6 @@ export const signIn = async (req: Request, res: Response) => {
 // Sign-out
 export const signOut = async (req: Request, res: Response) => {
 	try {
-		const accessToken = req.cookies.access_token;
-
-		if (accessToken) {
-			const { error } = await supabase.auth.admin.signOut(accessToken);
-
-			if (error) {
-				console.error('Supabase admin signout failed', error);
-			}
-		}
-		// Clear cookies
-		// 1. Clear access_token
 		res.clearCookie('access_token', cookieOptions);
 
 		// 2. Clear refresh_token

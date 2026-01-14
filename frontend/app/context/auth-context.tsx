@@ -1,76 +1,98 @@
-// 'use client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { createContext, ReactNode, useCallback, useContext } from 'react';
+import { fetcher } from '../lib/helper';
+import { UserType } from '../types';
 
-// import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-// import { useRouter } from 'next/navigation';
-// import { User } from '../types';
+// first we make a type for our AuthContext
+type AuthContextType = {
+	user: UserType | null;
+	status: 'loading' | 'authenticated' | 'unauthenticated';
+	refresh: () => void;
+	logout: () => void;
+};
 
-// interface AuthContextType {
-//   user: User | null;
-//   login: (email: string, password: string) => Promise<boolean>;
-//   logout: () => void;
-//   isAuthenticated: boolean;
-// }
+// Create a context
+const AuthContext = createContext<AuthContextType | null>(null);
+interface AuthResponse {
+	user: UserType;
+}
+// Define the fetcher for obtaining the current user
+const fetchUser = async (): Promise<UserType | null> => {
+	try {
+		const data = await fetcher<AuthResponse>(
+			`${process.env.NEXT_PUBLIC_API_URL}/auth/me`
+		);
+		return data?.user;
+	} catch (error) {
+		return null;
+	}
+};
 
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Define logout user fetcher
+const logoutUser = async () => {
+	const res: Response = await fetch(
+		`${process.env.NEXT_PUBLIC_API_URL}/auth/signout`,
+		{
+			method: 'POST',
+			credentials: 'include',
+		}
+	);
 
-// export function AuthProvider({ children }: { children: ReactNode }) {
-//   const [user, setUser] = useState<User | null>(null);
-//   const router = useRouter();
+	if (!res.ok) throw new Error('Logout failed!');
 
-//   useEffect(() => {
-//     // Check if user is stored in localStorage
-//     const storedUser = localStorage.getItem('user');
-//     if (storedUser) {
-//       setUser(JSON.parse(storedUser));
-//     }
-//   }, []);
+	return res;
+};
 
-//   const login = async (email: string, password: string): Promise<boolean> => {
-//     try {
-//       // Import mock user data
-//       const userData = await import('../mockdata/userData.json');
-//       const users = userData.default;
-      
-//       // Find user by email (mock authentication)
-//       const foundUser = users.find((u: User) => u.email === email);
-      
-//       if (foundUser && password.length >= 6) {
-//         setUser(foundUser);
-//         localStorage.setItem('user', JSON.stringify(foundUser));
-//         return true;
-//       }
-//       return false;
-//     } catch (error) {
-//       console.error('Login error:', error);
-//       return false;
-//     }
-//   };
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+	const queryClient = useQueryClient();
+	const router = useRouter();
 
-//   const logout = () => {
-//     setUser(null);
-//     localStorage.removeItem('user');
-//     router.push('/login');
-//   };
+	// Fetch user session
+	const { data: user, isLoading } = useQuery({
+		queryKey: ['authUser'],
+		queryFn: fetchUser,
+		staleTime: Infinity, // users data doesn't expire until we say no
+		retry: false, //Dont retry when 401 errors
+	});
+	const logoutMutation = useMutation({
+		mutationFn: logoutUser,
+		onSuccess: () => {
+			// Clear the cached
+			queryClient.setQueryData(['authUser'], null);
+			queryClient.clear();
+			// redirect to login
+			router.replace('/login');
+		},
+	});
 
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         user,
-//         login,
-//         logout,
-//         isAuthenticated: !!user,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
+	// Derive state
+	const status = isLoading
+		? 'loading'
+		: user
+		? 'authenticated'
+		: 'unauthenticated';
 
-// export function useAuth() {
-//   const context = useContext(AuthContext);
-//   if (context === undefined) {
-//     throw new Error('useAuth must be used within an AuthProvider');
-//   }
-//   return context;
-// }
+	const refresh = useCallback(() => {
+		queryClient.invalidateQueries({ queryKey: ['authUser'] });
+	}, [queryClient]);
+	console.log('status', status);
+	return (
+		<AuthContext.Provider
+			value={{
+				user: user || null,
+				status,
+				refresh,
+				logout: () => logoutMutation.mutate(),
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
+};
 
+export const useAuth = () => {
+	const ctx = useContext(AuthContext);
+	if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+	return ctx;
+};

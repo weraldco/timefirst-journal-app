@@ -1,0 +1,72 @@
+// app/context/AuthContext.tsx
+'use client';
+
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from 'react';
+import { UserType } from '../types';
+
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
+type AuthContextType = {
+	user: UserType | null;
+	status: AuthStatus;
+	refresh: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+	const [user, setUser] = useState<UserType | null>(null);
+	const [status, setStatus] = useState<AuthStatus>('loading');
+
+	const loadUser = useCallback(async () => {
+		try {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+				credentials: 'include',
+			});
+
+			if (!res.ok) {
+				setUser(null);
+				setStatus('unauthenticated');
+				return;
+			}
+
+			const data = await res.json();
+
+			setUser(data.user);
+			setStatus('authenticated');
+		} catch {
+			setUser(null);
+			setStatus('unauthenticated');
+		}
+	}, []);
+
+	useEffect(() => {
+		Promise.resolve().then(() => loadUser()); // ✅ deferred execution
+	}, [loadUser]);
+
+	return (
+		<AuthContext.Provider
+			value={{
+				user,
+				status,
+				refresh: loadUser,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
+}
+
+export function useAuth() {
+	const ctx = useContext(AuthContext);
+	if (!ctx) {
+		throw new Error('useAuth must be used inside AuthProvider');
+	}
+	return ctx;
+}
