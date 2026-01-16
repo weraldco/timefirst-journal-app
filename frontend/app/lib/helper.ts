@@ -1,3 +1,5 @@
+export const getToday = () => new Date().toISOString().split('T')[0];
+
 export const fetcher = async <T>(
 	url: string,
 	options?: RequestInit
@@ -33,4 +35,23 @@ export const fetcher = async <T>(
 		}
 		throw error;
 	}
+};
+
+export const getDailyQuoteFromStorage = () => {
+	// window is a browser object that when exist, you
+	// can have access to localstorage
+	if (typeof window === 'undefined') return null;
+
+	// get the daily-quote saved in localstorage
+	const saved = localStorage.getItem('daily-quote');
+
+	// is daily-quote not exist return null
+	if (!saved) return null;
+
+	// parse the save data
+	const parsed = JSON.parse(saved);
+
+	// check if save date equals to todays date,
+	// if yes return parse quote else null
+	return parsed.date === getToday() ? parsed.quote : null;
 };

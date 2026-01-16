@@ -75,4 +75,20 @@ export const journalService = {
 			where: { id },
 		});
 	},
+	getMood: async (userId: string, year: number) => {
+		return await prisma.journal.findMany({
+			where: {
+				createdAt: {
+					gte: new Date(`${year}-01-01`),
+					lt: new Date(`${year + 1}-01-01`),
+				},
+				userId,
+			},
+			select: {
+				id: true,
+				mood: true,
+				createdAt: true,
+			},
+		});
+	},
 };

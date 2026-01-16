@@ -11,7 +11,6 @@ export const journalController = {
 				return res.status(401).json({ error: 'User Unauthorized' });
 			}
 			const journalPosts = await journalService.getAll(userId);
-			console.log('data', journalPosts);
 			res.status(200).json({
 				success: true,
 				data: journalPosts,
@@ -43,6 +42,22 @@ export const journalController = {
 				notFoundError.statusCode = 404;
 				return next(notFoundError);
 			}
+			next(error);
+		}
+	},
+
+	getMood: async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const userId = req.user?.id;
+			const { year } = req.body;
+			console.log('Y', year);
+			if (!userId) {
+				return res.status(401).json({ error: 'User Unauthorized' });
+			}
+
+			const moodData = await journalService.getMood(userId, year);
+			res.status(200).json({ success: true, data: moodData });
+		} catch (error) {
 			next(error);
 		}
 	},

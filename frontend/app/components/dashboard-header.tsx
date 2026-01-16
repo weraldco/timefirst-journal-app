@@ -1,14 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '../context/auth-context';
-import { queryClient } from '../lib/react-query';
 import { UserType } from '../types';
 
 export default function DashboardHeader({ user }: { user: UserType }) {
 	const { logout } = useAuth();
-	const router = useRouter();
 	const getInitials = (name: string) => {
 		return name
 			.split(' ')
@@ -18,15 +15,12 @@ export default function DashboardHeader({ user }: { user: UserType }) {
 			.slice(0, 2);
 	};
 	const handleLogout = async () => {
-		// const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signout`, {
-		// 	credentials: 'include',
-		// });
-		// if (!res.ok) return;
-		// queryClient.clear();
-		// toast.success('Success', {
-		// 	description: 'Sign out successfully, thank you!',
-		// });
-		// router.replace('/login');
+		try {
+			logout();
+			toast.info('Success', { description: 'Successfully logout' });
+		} catch (error) {
+			toast.error('Error loging out');
+		}
 	};
 
 	return (
@@ -58,7 +52,7 @@ export default function DashboardHeader({ user }: { user: UserType }) {
 						</div>
 					</div>
 					<button
-						onClick={logout}
+						onClick={handleLogout}
 						className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
 					>
 						Logout
