@@ -32,6 +32,7 @@ const JournalList = ({ journals }: PropsType) => {
 			}),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['journals'] });
+			queryClient.invalidateQueries({ queryKey: ['mood-data'] });
 		},
 	});
 
@@ -42,6 +43,7 @@ const JournalList = ({ journals }: PropsType) => {
 			}),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['journals'] });
+			queryClient.invalidateQueries({ queryKey: ['mood-data'] });
 		},
 	});
 	const filteredJournals =

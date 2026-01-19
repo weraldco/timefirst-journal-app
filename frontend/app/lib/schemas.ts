@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { moodValues } from '../types';
 
 export const loginSchema = z.object({
 	email: z.string().email('Invalid email address'),
@@ -8,7 +9,9 @@ export const loginSchema = z.object({
 export const journalSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	content: z.string().min(1, 'Content is required'),
-	mood: z.string().min(1, 'Mood is required'),
+	mood: z.enum(moodValues, {
+		message: 'Invalid mood',
+	}),
 	tags: z.array(z.string()),
 });
 

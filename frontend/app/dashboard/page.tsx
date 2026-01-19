@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import DashboardHeader from '../components/dashboard-header';
 import JournalList from '../components/journal-list';
+import MoodBoard from '../components/mood-board';
+import QuoteOfTheDay from '../components/quote-of-the-day';
 import { useAuth } from '../context/auth-context';
 import { fetcher } from '../lib/helper';
 import { FetchData } from '../types';
@@ -38,6 +40,18 @@ export default function DashboardPage() {
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 			<DashboardHeader user={user} />
+			<QuoteOfTheDay />
+			<MoodBoard />
+			{/* <p className="text-3xl text-center py-5">
+				Time first, pause. <br /> Do you have something in your mind? <br />
+				Come here, talk to me..
+			</p>
+			<div className="flex items-center justify-center ">
+				<button className="bg-blue-600 px-6 py-4 text-xl rounded-xl font-bold cursor-pointer">
+					Add your thoughts
+				</button>
+			</div> */}
+
 			<JournalList journals={data.data} />
 		</div>
 	);

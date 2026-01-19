@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth } from '../context/auth-context';
 import { fetcher } from '../lib/helper';
+import { MoodT } from '../types';
 
 type moodDataT = {
 	id: string;
@@ -14,8 +15,6 @@ type ResponseData = {
 	success: boolean;
 	data: moodDataT[];
 };
-
-type MoodT = 'happy' | 'sad' | 'angry' | 'calm' | 'null';
 
 interface MoodDataType {
 	date: string;
@@ -67,22 +66,24 @@ const MoodBoard = () => {
 	}));
 
 	const moodColor = {
-		happy: '#FFD93D',
-		sad: '#4D96FF',
-		angry: '#FF6B6B',
-		calm: '#6BCF63',
-		null: '#E0E0E0',
+		happy: '#64d971',
+		calm: '#ffa805',
+		productive: '#40cae6',
+		tired: '#f0465c',
+		stressed: '#ae46f0',
+		relaxed: '#494fc9',
+		null: '#707070',
 	};
 	return (
-		<div className="flex flex-row gap-3 max-w-5xl items-center justify-center">
-			<div className=" flex flex-row gap-1 max-w-3xl w-full flex-wrap items-center justify-center">
+		<div className="flex flex-row w-full items-center justify-center ">
+			<div className=" flex flex-row gap-1 max-w-md md:max-w-xl w-full flex-wrap items-center justify-center">
 				{moodBoardData.map((d, i) => (
 					<div
 						key={i}
 						style={{
 							backgroundColor: moodColor[d.mood],
 						}}
-						className={` px-2 py-2 text-xs  rounded-full`}
+						className={`w-2.5 h-2.5	 text-xs  rounded-full`}
 					></div>
 				))}
 			</div>

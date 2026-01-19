@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { JournalFormData, journalSchema } from '../lib/schemas';
-import { Journal } from '../types';
+import { Journal, moodValues } from '../types';
 
 interface JournalAddFormModalProps {
 	journal?: Journal | null;
@@ -13,7 +13,6 @@ interface JournalAddFormModalProps {
 	onClose: () => void;
 }
 
-const moods = ['happy', 'calm', 'productive', 'tired', 'stressed', 'relaxed'];
 const availableTags = [
 	'morning',
 	'evening',
@@ -51,7 +50,7 @@ export default function JournalAddFormModal({
 		defaultValues: {
 			title: '',
 			content: '',
-			mood: '',
+			mood: 'null',
 			tags: [],
 		},
 	});
@@ -182,7 +181,7 @@ export default function JournalAddFormModal({
 							Mood *
 						</label>
 						<div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-							{moods.map((mood) => (
+							{moodValues.map((mood) => (
 								<button
 									key={mood}
 									type="button"
