@@ -1,20 +1,8 @@
-## AUTH SETUP
+I’m WERALD currently working as measuring technician in microsourcing as my fulltime job, 
+and freelancing fullstack development with speciallization in frontend technology as my side gig.
+I’m also studying current trends in tech space in my freetime like AI/ML and cloud technologies (such as AWS and GCP).
+I attended some community event and workshop to upskill. 
 
-### BACKEND
-
-1. Create a controller in backend for auth (signup, signin, signout, me, refresh)
-2. Create a route for controller.
-   - signup -> /auth/signup
-   - signin -> /auth/signin
-   - signout -> /auth/signout
-   - me -> /auth/me
-   - refresh -> /auth/refresh
-3. create a middleware for auth. authMiddleware
-
-### FRONTEND
-
-1. Create a form (sign in, sign up)
-2. Create a page that can be access by logged user
-3. use useQuery and useContext for managing the data around the frontend
-4. create authContext that manage {user data, status, refresh, logout}
-5. use userQuery when fetching the api route.
+I develop optimized, user centered and  various application using REACTJS and NEXTJS
+for my frontend and NODEJS and EXPRESSJS for my backend, I also use SUPABASE for my
+POSTGRESQL database and authentication.
