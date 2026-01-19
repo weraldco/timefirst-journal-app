@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { fetcher } from '../lib/helper';
 import { queryClient } from '../lib/react-query';
 import { JournalFormData, journalSchema } from '../lib/schemas';
-import { Journal } from '../types';
+import { Journal, moodValues } from '../types';
 
 interface JournalUpdateFormModalProps {
 	journal?: Journal | null;
@@ -16,7 +16,6 @@ interface JournalUpdateFormModalProps {
 	onClose: () => void;
 }
 
-const moods = ['happy', 'calm', 'productive', 'tired', 'stressed', 'relaxed'];
 const availableTags = [
 	'morning',
 	'evening',
@@ -54,7 +53,7 @@ export default function JournalUpdateFormModal({
 		defaultValues: {
 			title: '',
 			content: '',
-			mood: '',
+			mood: 'null',
 			tags: [],
 		},
 	});
@@ -199,7 +198,7 @@ export default function JournalUpdateFormModal({
 							Mood *
 						</label>
 						<div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-							{moods.map((mood) => (
+							{moodValues.map((mood) => (
 								<button
 									key={mood}
 									type="button"

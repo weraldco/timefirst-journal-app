@@ -23,7 +23,6 @@ const Page = () => {
 		// Cache until end of the day
 		staleTime: 1000 * 60 * 60 * 24,
 	});
-	console.log('data', quote);
 
 	useEffect(() => {
 		if (!quote) return;
@@ -35,6 +34,10 @@ const Page = () => {
 			})
 		);
 	}, [quote]);
+
+	if (!quote) {
+		return <p>Loading..</p>;
+	}
 	return (
 		<div className="flex w-full bg-red-50 items-center justify-center">
 			<div className="bg-amber-200 max-w-2xl w-full text-black flex flex-col">
