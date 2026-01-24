@@ -2,7 +2,7 @@ export const getToday = () => new Date().toISOString().split('T')[0];
 
 export const fetcher = async <T>(
 	url: string,
-	options?: RequestInit
+	options?: RequestInit,
 ): Promise<T> => {
 	if (!navigator.onLine) {
 		throw new Error('No internet connection. Please check your network.');
@@ -50,7 +50,7 @@ export const getDailyQuoteFromStorage = () => {
 
 	// parse the save data
 	const parsed = JSON.parse(saved);
-
+	console.log('parsed', parsed.quote);
 	// check if save date equals to todays date,
 	// if yes return parse quote else undefined
 	return parsed.date === getToday() ? parsed.quote : undefined;

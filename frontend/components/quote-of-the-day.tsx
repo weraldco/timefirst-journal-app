@@ -6,23 +6,26 @@ import { getDailyQuoteFromStorage, getToday } from '../lib/helper';
 
 const QuoteOfTheDay = () => {
 	const fetchQuote = async () => {
-		console.log('Fetching data..');
 		const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quote`);
 		if (!res.ok) throw new Error('Failed to fetch');
 		const data = await res.json();
+		console.log(data);
 		return data;
 	};
 
-	const { data: quote } = useQuery({
+	const { data: quote, isLoading } = useQuery({
 		queryKey: ['daily-quote'],
 		queryFn: fetchQuote,
 
 		// Use stored quote if it exists
-		initialData: getDailyQuoteFromStorage,
+		initialData: () => {
+			return getDailyQuoteFromStorage();
+		},
 
 		// Cache until end of the day
 		staleTime: 1000 * 60 * 60 * 24,
 	});
+
 	console.log('data', quote);
 
 	useEffect(() => {
@@ -32,7 +35,7 @@ const QuoteOfTheDay = () => {
 			JSON.stringify({
 				date: getToday(),
 				quote,
-			})
+			}),
 		);
 	}, [quote]);
 	return (

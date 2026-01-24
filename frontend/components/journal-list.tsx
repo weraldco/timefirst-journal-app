@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Homemade_Apple } from 'next/font/google';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { fetcher } from '../lib/helper';
 import { queryClient } from '../lib/react-query';
 import { JournalFormData } from '../lib/schemas';

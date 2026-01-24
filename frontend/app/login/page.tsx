@@ -1,12 +1,12 @@
 'use client';
 
+import { useAuth } from '@//context/auth-context';
+import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useAuth } from '../context/auth-context';
-import { LoginFormData, loginSchema } from '../lib/schemas';
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -40,7 +40,7 @@ export default function LoginPage() {
 						email: value.email,
 						password: value.password,
 					}),
-				}
+				},
 			);
 			const data = await res.json();
 			if (!res.ok) {

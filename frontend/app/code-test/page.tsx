@@ -1,8 +1,8 @@
 'use client';
 
+import { getDailyQuoteFromStorage, getToday } from '@/lib/helper';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { getDailyQuoteFromStorage, getToday } from '../lib/helper';
 
 const Page = () => {
 	const fetchQuote = async () => {
@@ -31,7 +31,7 @@ const Page = () => {
 			JSON.stringify({
 				date: getToday(),
 				quote,
-			})
+			}),
 		);
 	}, [quote]);
 
