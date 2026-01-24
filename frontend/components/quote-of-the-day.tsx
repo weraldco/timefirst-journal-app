@@ -38,6 +38,7 @@ const QuoteOfTheDay = () => {
 			}),
 		);
 	}, [quote]);
+	if (!quote) return;
 	return (
 		<div className="flex w-full items-center justify-center py-5">
 			<div className=" max-w-md md:max-w-2xl w-full text-white flex flex-col">
