@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@//context/auth-context';
+import { useAuth } from '@/context/auth-context';
 import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
