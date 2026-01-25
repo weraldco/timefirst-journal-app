@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: 'TimeFirst - Journal App',
 	description: 'A modern journaling application',
+	icons: {
+		icon: [
+			{
+				url: '/icon.svg',
+				type: 'image/svg+xml',
+			},
+			{
+				url: '/favicon.png', // 32x32 or 64x64 PNG
+				type: 'image/png',
+			},
+		],
+	},
 };
 
 export default function RootLayout({
