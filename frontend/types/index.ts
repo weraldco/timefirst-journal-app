@@ -43,3 +43,20 @@ export interface UserType {
 	email: string;
 	name: string;
 }
+
+export const postTypeValues = ['project', 'code_kata', 'achievement'] as const;
+export type PostType = (typeof postTypeValues)[number];
+
+export interface Post {
+	id: string;
+	title: string;
+	description: string;
+	imageUrl: string | null;
+	tags: string[];
+	type: PostType;
+	date: string;
+	createdAt: string;
+	updatedAt: string;
+	userId: string;
+	user?: { name: string };
+}

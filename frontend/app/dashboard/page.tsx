@@ -3,13 +3,20 @@
 import DashboardHeader from '@/components/dashboard-header';
 import JournalList from '@/components/journal-list';
 import MoodBoard from '@/components/mood-board';
+import PostTable from '@/components/post-table';
 import QuoteOfTheDay from '@/components/quote-of-the-day';
 import { useAuth } from '@/context/auth-context';
 import { fetcher } from '@/lib/helper';
 import { FetchData } from '@/types';
+import type { Post } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+
+interface MyPostsResponse {
+	success: boolean;
+	data: Post[];
+}
 
 export default function DashboardPage() {
 	const { user, status } = useAuth();
@@ -17,12 +24,20 @@ export default function DashboardPage() {
 
 	useEffect(() => {
 		if (status === 'unauthenticated') {
-			router.replace('/login'); // push user to login page
+			router.replace('/login');
 		}
 	}, [status, router]);
+
 	const { data, isLoading, error } = useQuery<FetchData>({
 		queryKey: ['journals'],
 		queryFn: () => fetcher(`${process.env.NEXT_PUBLIC_API_URL}/journal`),
+		enabled: status === 'authenticated',
+	});
+
+	const { data: postsData } = useQuery<MyPostsResponse>({
+		queryKey: ['my-posts'],
+		queryFn: () =>
+			fetcher(`${process.env.NEXT_PUBLIC_API_URL}/post/my`),
 		enabled: status === 'authenticated',
 	});
 
@@ -42,17 +57,8 @@ export default function DashboardPage() {
 			<DashboardHeader user={user} />
 			<QuoteOfTheDay />
 			<MoodBoard />
-			{/* <p className="text-3xl text-center py-5">
-				Time first, pause. <br /> Do you have something in your mind? <br />
-				Come here, talk to me..
-			</p>
-			<div className="flex items-center justify-center ">
-				<button className="bg-blue-600 px-6 py-4 text-xl rounded-xl font-bold cursor-pointer">
-					Add your thoughts
-				</button>
-			</div> */}
-
 			<JournalList journals={data.data} />
+			<PostTable posts={postsData?.data ?? []} />
 		</div>
 	);
 }

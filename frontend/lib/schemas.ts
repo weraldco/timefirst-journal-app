@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { moodValues } from '../types';
+import { moodValues, postTypeValues } from '../types';
 
 export const loginSchema = z.object({
 	email: z.string().email('Invalid email address'),
@@ -15,5 +15,17 @@ export const journalSchema = z.object({
 	tags: z.array(z.string()),
 });
 
+export const postSchema = z.object({
+	title: z.string().min(1, 'Title is required'),
+	description: z.string().min(1, 'Description is required'),
+	imageUrl: z.string().nullable().optional(),
+	tags: z.array(z.string()),
+	type: z.enum(postTypeValues, {
+		message: 'Invalid post type',
+	}),
+	date: z.string().or(z.date()),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type JournalFormData = z.infer<typeof journalSchema>;
+export type PostFormData = z.infer<typeof postSchema>;

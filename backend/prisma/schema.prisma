@@ -6,11 +6,18 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PostType {
+  project
+  code_kata
+  achievement
+}
+
 model User {
   id       String    @id @db.Uuid
   name     String
   email    String    @unique
   journals Journal[]
+  posts    Post[]
 }
 
 model Journal {
@@ -25,4 +32,21 @@ model Journal {
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  imageUrl    String?
+  tags        String[]
+  type        PostType
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
 }

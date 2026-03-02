@@ -1,5 +1,5 @@
-import DashboardWrapper from '@/components/dashboard-wrapper';
+import BlogFeed from '@/components/blog-feed';
 
 export default function Home() {
-	return <DashboardWrapper />;
+	return <BlogFeed />;
 }
