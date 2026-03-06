@@ -6,7 +6,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export async function uploadPostImage(
 	file: File,
-	userId: string
+	userId: string,
 ): Promise<string> {
 	if (file.size > MAX_SIZE_MB * 1024 * 1024) {
 		throw new Error(`Image must be less than ${MAX_SIZE_MB}MB`);
@@ -16,19 +16,21 @@ export async function uploadPostImage(
 	}
 
 	const ext = file.name.split('.').pop() || 'jpg';
-	const path = `${userId}/${Date.now()}.${ext}`;
+	const filePath = `${userId}/${Date.now()}-${file.name}`;
 
-	const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+	console.log('path', filePath);
+
+	const { error } = await supabase.storage.from(BUCKET).upload(filePath, file, {
 		cacheControl: '3600',
 		upsert: false,
 	});
-
+	console.log('error', error);
 	if (error) {
 		throw new Error(error.message || 'Upload failed');
 	}
 
 	const {
 		data: { publicUrl },
-	} = supabase.storage.from(BUCKET).getPublicUrl(path);
+	} = supabase.storage.from(BUCKET).getPublicUrl(filePath);
 	return publicUrl;
 }

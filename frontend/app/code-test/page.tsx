@@ -1,49 +1,56 @@
-'use client';
-
-import { getDailyQuoteFromStorage, getToday } from '@/lib/helper';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+'use client'; // Required if using Next.js App Router
+import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/test-upload';
+import Image from 'next/image';
+import { useState } from 'react';
 
 const Page = () => {
-	const fetchQuote = async () => {
-		console.log('Fetching data..');
-		const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quote`);
-		if (!res.ok) throw new Error('Failed to fetch');
-		const data = await res.json();
-		return data;
+	const [file, setFile] = useState<File | null>(null);
+	const [uploading, setUploading] = useState(false);
+	const { data } = supabase.storage
+		.from('post-images')
+		.getPublicUrl('user-uploads/0.9467643872620758.jpeg');
+	// 1. Capture the file when the input changes
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files.length > 0) {
+			setFile(e.target.files[0]);
+		}
 	};
 
-	const { data: quote } = useQuery({
-		queryKey: ['daily-quote'],
-		queryFn: fetchQuote,
+	// 2. Upload the captured file when the button is clicked
+	const handleUpload = async () => {
+		if (!file) return alert('Please select a file first!');
 
-		// Use stored quote if it exists
-		initialData: getDailyQuoteFromStorage,
-
-		// Cache until end of the day
-		staleTime: 1000 * 60 * 60 * 24,
-	});
-
-	useEffect(() => {
-		if (!quote) return;
-		localStorage.setItem(
-			'daily-quote',
-			JSON.stringify({
-				date: getToday(),
-				quote,
-			}),
-		);
-	}, [quote]);
-
-	if (!quote) {
-		return <p>Loading..</p>;
-	}
+		setUploading(true);
+		try {
+			const url = await uploadImage(file);
+			alert(`Upload successful! URL: ${url}`);
+		} catch (error) {
+			alert('Upload failed');
+		} finally {
+			setUploading(false);
+		}
+	};
+	console.log(data.publicUrl);
 	return (
-		<div className="flex w-full bg-red-50 items-center justify-center">
-			<div className="bg-amber-200 max-w-2xl w-full text-black flex flex-col">
-				<span className="italic">{quote.text}</span>
-				<span className="w-full text-right">{quote.author}</span>
-			</div>
+		<div className="p-4 flex flex-col gap-4">
+			<input
+				type="file"
+				id="imageInput"
+				accept="image/*"
+				onChange={handleFileChange}
+			/>
+
+			<button
+				type="button"
+				onClick={handleUpload}
+				disabled={!file || uploading}
+				className="px-4 py-2 bg-blue-500 text-white disabled:bg-gray-400"
+			>
+				{uploading ? 'Uploading...' : 'Upload to Supabase'}
+			</button>
+
+			<Image src={data.publicUrl} alt="Image" width={300} height={300} />
 		</div>
 	);
 };

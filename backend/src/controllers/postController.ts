@@ -59,7 +59,7 @@ export const postController = {
 				imageUrl: imageUrl ?? null,
 				tags: tags ?? [],
 				type,
-				date: date ? new Date(date) : undefined,
+				date: date ? new Date(date) : new Date(),
 				userId,
 			});
 
@@ -85,7 +85,7 @@ export const postController = {
 				imageUrl,
 				tags,
 				type,
-				date: date ? new Date(date) : undefined,
+				date: date ? new Date(date) : new Date(),
 			});
 
 			res.status(200).json({ success: true, data: post });

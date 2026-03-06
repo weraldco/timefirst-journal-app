@@ -1,13 +1,13 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { useAuth } from '@/context/auth-context';
 import { PostFormData, postSchema } from '@/lib/schemas';
 import { uploadPostImage } from '@/lib/upload';
 import type { Post } from '@/types';
-import { useAuth } from '@/context/auth-context';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface PostFormModalProps {
 	post?: Post | null;
@@ -27,16 +27,36 @@ const availableTags = [
 	'coding',
 ];
 
-export default function PostFormModal({
-	post,
-	onSave,
-	onClose,
-}: PostFormModalProps) {
+const getDefaultValues = (post: Post | null | undefined): PostFormData =>
+	post
+		? {
+				title: post.title,
+				description: post.description,
+				imageUrl: post.imageUrl,
+				tags: post.tags ?? [],
+				type: post.type,
+				date: post.date.split('T')[0],
+			}
+		: {
+				title: '',
+				description: '',
+				imageUrl: null,
+				tags: [],
+				type: 'project',
+				date: new Date().toISOString().split('T')[0],
+			};
+
+function PostFormModalForm({ post, onSave, onClose }: PostFormModalProps) {
 	const { user } = useAuth();
-	const [selectedTags, setSelectedTags] = useState<string[]>(post?.tags || []);
+	const normalizedPost = post
+		? { ...post, imageUrl: post.imageUrl ?? null }
+		: null;
+	const [selectedTags, setSelectedTags] = useState<string[]>(
+		normalizedPost?.tags ?? [],
+	);
 	const [customTag, setCustomTag] = useState('');
 	const [imagePreview, setImagePreview] = useState<string | null>(
-		post?.imageUrl || null
+		normalizedPost?.imageUrl ?? null,
 	);
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
@@ -46,45 +66,10 @@ export default function PostFormModal({
 		handleSubmit,
 		formState: { errors },
 		setValue,
-		reset,
 	} = useForm<PostFormData>({
 		resolver: zodResolver(postSchema),
-		defaultValues: {
-			title: '',
-			description: '',
-			imageUrl: null,
-			tags: [],
-			type: 'project',
-			date: new Date().toISOString().split('T')[0],
-		},
+		defaultValues: getDefaultValues(normalizedPost),
 	});
-
-	useEffect(() => {
-		if (post) {
-			reset({
-				title: post.title,
-				description: post.description,
-				imageUrl: post.imageUrl,
-				tags: post.tags ?? [],
-				type: post.type,
-				date: post.date.split('T')[0],
-			});
-			setSelectedTags(post.tags ?? []);
-			setImagePreview(post.imageUrl);
-		} else {
-			reset({
-				title: '',
-				description: '',
-				imageUrl: null,
-				tags: [],
-				type: 'project',
-				date: new Date().toISOString().split('T')[0],
-			});
-			setSelectedTags([]);
-			setImagePreview(null);
-			setImageFile(null);
-		}
-	}, [post, reset]);
 
 	const toggleTag = (tag: string) => {
 		const newTags = selectedTags.includes(tag)
@@ -112,7 +97,7 @@ export default function PostFormModal({
 			reader.readAsDataURL(file);
 		} else {
 			setImageFile(null);
-			setImagePreview(post?.imageUrl || null);
+			setImagePreview(normalizedPost?.imageUrl || null);
 		}
 	};
 
@@ -124,31 +109,34 @@ export default function PostFormModal({
 
 	const onSubmit = async (data: PostFormData) => {
 		try {
-			let imageUrl: string | null = post?.imageUrl || null;
-
+			let imageUrl: string | null = normalizedPost?.imageUrl || null;
 			if (imageFile && user?.id) {
 				setIsUploading(true);
 				try {
 					imageUrl = await uploadPostImage(imageFile, user.id);
+					console.log('url', imageUrl);
 				} catch (err) {
 					toast.error(
-						err instanceof Error ? err.message : 'Image upload failed'
+						err instanceof Error ? err.message : 'Image upload failed',
 					);
 					setIsUploading(false);
 					return;
 				}
 				setIsUploading(false);
-			} else if (!imageFile && !post?.imageUrl) {
+			} else if (!imageFile && !normalizedPost?.imageUrl) {
 				imageUrl = null;
 			}
+
+			setValue('imageUrl', imageUrl);
 
 			onSave({
 				...data,
 				tags: selectedTags,
 				imageUrl,
 			});
+			console.log('payload', { ...data, tags: selectedTags, imageUrl });
 			onClose();
-		} catch (err) {
+		} catch {
 			toast.error('Error saving post');
 		}
 	};
@@ -189,10 +177,7 @@ export default function PostFormModal({
 					</div>
 				</div>
 
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className="space-y-6 p-6"
-				>
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">
 					<div>
 						<label
 							htmlFor="title"
@@ -274,9 +259,7 @@ export default function PostFormModal({
 							</div>
 						)}
 						{isUploading && (
-							<p className="mt-1 text-sm text-gray-500">
-								Uploading image...
-							</p>
+							<p className="mt-1 text-sm text-gray-500">Uploading image...</p>
 						)}
 					</div>
 
@@ -295,9 +278,7 @@ export default function PostFormModal({
 							<option value="achievement">Achievement</option>
 						</select>
 						{errors.type && (
-							<p className="mt-1 text-sm text-red-600">
-								{errors.type.message}
-							</p>
+							<p className="mt-1 text-sm text-red-600">{errors.type.message}</p>
 						)}
 					</div>
 
@@ -315,9 +296,7 @@ export default function PostFormModal({
 							className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
 						/>
 						{errors.date && (
-							<p className="mt-1 text-sm text-red-600">
-								{errors.date.message}
-							</p>
+							<p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
 						)}
 					</div>
 
@@ -374,10 +353,9 @@ export default function PostFormModal({
 										<button
 											type="button"
 											onClick={() => {
-												const newTags =
-													selectedTags.filter(
-														(_, i) => i !== index
-													);
+												const newTags = selectedTags.filter(
+													(_, i) => i !== index,
+												);
 												setSelectedTags(newTags);
 												setValue('tags', newTags);
 											}}
@@ -410,5 +388,16 @@ export default function PostFormModal({
 				</form>
 			</div>
 		</div>
+	);
+}
+
+export default function PostFormModal(props: PostFormModalProps) {
+	return (
+		<PostFormModalForm
+			key={props.post?.id ?? 'new'}
+			post={props.post}
+			onSave={props.onSave}
+			onClose={props.onClose}
+		/>
 	);
 }
