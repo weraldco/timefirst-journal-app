@@ -17,7 +17,7 @@ const app = express();
 // Middleware
 app.use(
 	cors({
-		origin: ['https://timefirst.weraldco.com/', 'http://localhost:3000'],
+		origin: ['https://timefirst.weraldco.com', 'http://localhost:3000'],
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 		// allowedHeaders: ['Content-Type', 'Authorization'],
 		credentials: true,
