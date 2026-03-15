@@ -1,20 +1,10 @@
-import { Request, Response } from 'express';
 import { postController } from '../controllers/postController';
 import { postService } from '../services/postService';
+import { mockRequest, mockResponse, mockUser } from './helpers';
 
 jest.mock('../services/postService');
 
 const mockPostService = postService as jest.Mocked<typeof postService>;
-
-const mockRequest = (overrides: Partial<Request> = {}) =>
-	({ body: {}, params: {}, user: undefined, ...overrides } as unknown as Request);
-
-const mockResponse = () => {
-	const res = {} as Response;
-	res.status = jest.fn().mockReturnValue(res);
-	res.json = jest.fn().mockReturnValue(res);
-	return res;
-};
 
 const mockNext = jest.fn();
 
@@ -79,7 +69,7 @@ describe('postController', () => {
 		});
 
 		it('returns user posts when authenticated', async () => {
-			const req = mockRequest({ user: { id: 'user-1' } });
+			const req = mockRequest({ user: mockUser });
 			const res = mockResponse();
 			mockPostService.getMy.mockResolvedValue([{ id: '1' }] as never);
 
@@ -93,7 +83,7 @@ describe('postController', () => {
 	describe('create', () => {
 		it('returns 400 when title, description, or type is missing', async () => {
 			const req = mockRequest({
-				user: { id: 'user-1' },
+				user: mockUser,
 				body: { title: 'Test' },
 			});
 			const res = mockResponse();
@@ -106,7 +96,7 @@ describe('postController', () => {
 
 		it('creates post when all required fields provided', async () => {
 			const req = mockRequest({
-				user: { id: 'user-1' },
+				user: mockUser,
 				body: {
 					title: 'Title',
 					description: 'Desc',
@@ -137,7 +127,7 @@ describe('postController', () => {
 	describe('update', () => {
 		it('returns 400 when id is missing', async () => {
 			const req = mockRequest({
-				user: { id: 'user-1' },
+				user: mockUser,
 				params: {},
 				body: { title: 'Updated' },
 			});
@@ -151,7 +141,7 @@ describe('postController', () => {
 
 		it('updates post when user is owner', async () => {
 			const req = mockRequest({
-				user: { id: 'user-1' },
+				user: mockUser,
 				params: { id: 'post-1' },
 				body: { title: 'Updated' },
 			});
@@ -171,7 +161,7 @@ describe('postController', () => {
 
 	describe('delete', () => {
 		it('returns 400 when id is missing', async () => {
-			const req = mockRequest({ user: { id: 'user-1' }, params: {} });
+			const req = mockRequest({ user: mockUser, params: {} });
 			const res = mockResponse();
 
 			await postController.delete(req, res, mockNext);
@@ -182,7 +172,7 @@ describe('postController', () => {
 
 		it('deletes post when user is owner', async () => {
 			const req = mockRequest({
-				user: { id: 'user-1' },
+				user: mockUser,
 				params: { id: 'post-1' },
 			});
 			const res = mockResponse();

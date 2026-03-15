@@ -50,7 +50,6 @@ export const journalController = {
 		try {
 			const userId = req.user?.id;
 			const { year } = req.body;
-			console.log('Y', year);
 			if (!userId) {
 				return res.status(401).json({ error: 'User Unauthorized' });
 			}

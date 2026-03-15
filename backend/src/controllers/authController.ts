@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { CookieOptions, Request, Response } from 'express';
 import { prisma } from '../config/database';
+import { logger } from '../utils/logger';
 
 const supabase = createClient(
 	process.env.SUPABASE_URL!,
@@ -65,7 +66,7 @@ export const signUp = async (req: Request, res: Response) => {
 			},
 		});
 	} catch (error) {
-		console.error(error);
+		logger.error('Sign up failed', error);
 		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
@@ -96,9 +97,12 @@ export const signIn = async (req: Request, res: Response) => {
 
 		// If response has error and everything is not pass return an error.
 		if (!response.ok) {
-			const errorData: any = await response.json();
+			const errorData = (await response.json()) as {
+				error_description?: string;
+			};
 			return res.status(response.status).json({
-				error: errorData.error_description || 'Incorrect email or password',
+				error:
+					errorData.error_description || 'Incorrect email or password',
 			});
 		}
 
@@ -141,7 +145,7 @@ export const signIn = async (req: Request, res: Response) => {
 			message: 'Successfully signed in!',
 		});
 	} catch (err) {
-		console.error(err);
+		logger.error('Sign in failed', err);
 		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
@@ -155,7 +159,7 @@ export const signOut = async (req: Request, res: Response) => {
 
 		return res.json({ message: 'Logged out successfully!' });
 	} catch (error) {
-		console.error(error);
+		logger.error('Sign out failed', error);
 		return res.status(500).json({ error: 'Internal server error' });
 	}
 };
@@ -186,7 +190,7 @@ export const refresh = async (req: Request, res: Response) => {
 				.status(401)
 				.json({ error: 'Invalid or expired refresh token!' });
 
-		const data: any = await response.json();
+		const data = (await response.json()) as SupabaseTokenResponse;
 
 		res.cookie('access_token', data.access_token, {
 			...cookieOptions,
@@ -222,7 +226,7 @@ export const refresh = async (req: Request, res: Response) => {
 			},
 		});
 	} catch (err) {
-		console.error(err);
+		logger.error('Token refresh failed', err);
 		return res.status(500).json({ error: 'Refresh failed' });
 	}
 };
@@ -255,7 +259,7 @@ export const me = async (req: Request, res: Response) => {
 			},
 		});
 	} catch (error) {
-		console.error(error);
+		logger.error('Get current user failed', error);
 		return res.status(500).json({ error: 'Internal Server Error!' });
 	}
 };

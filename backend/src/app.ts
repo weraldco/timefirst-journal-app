@@ -1,7 +1,6 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import 'dotenv/config'; // loads .env automatically
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import { prisma } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
@@ -11,15 +10,16 @@ import journalRoutes from './routes/journalRoutes';
 import postRoutes from './routes/postRoutes';
 import quoteRoutes from './routes/quoteRoutes';
 
-dotenv.config();
 const app = express();
 
-// Middleware
+const corsOrigins = process.env.CORS_ORIGINS
+	? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+	: ['http://localhost:3000'];
+
 app.use(
 	cors({
-		origin: ['https://timefirst.weraldco.com', 'http://localhost:3000'],
+		origin: corsOrigins,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-		// allowedHeaders: ['Content-Type', 'Authorization'],
 		credentials: true,
 	}),
 );
