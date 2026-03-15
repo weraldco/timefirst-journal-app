@@ -62,13 +62,13 @@ const JournalList = ({ journals }: PropsType) => {
 			: byMood;
 
 		// Reset page if current page is now out of range
-		const maxPage = Math.max(1, Math.ceil(bySearch.length / 8));
+		const maxPage = Math.max(1, Math.ceil(bySearch.length / 6));
 		if (page > maxPage) setPage(maxPage);
 
 		return bySearch;
 	}, [journals, selectedMood, searchQuery, page]);
 
-	const pageSize = 8;
+	const pageSize = 6;
 	const totalPages = Math.max(1, Math.ceil(filteredJournals.length / pageSize));
 	const startIndex = (page - 1) * pageSize;
 	const paginatedJournals = filteredJournals.slice(
