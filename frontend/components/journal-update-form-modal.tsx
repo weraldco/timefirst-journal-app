@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { fetcher } from '../lib/helper';
 import { queryClient } from '../lib/react-query';
+import { queryKeys } from '../lib/query-keys';
 import { JournalFormData, journalSchema } from '../lib/schemas';
 import { Journal, moodValues } from '../types';
 
@@ -79,7 +80,7 @@ export default function JournalUpdateFormModal({
 				}
 			),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['journals'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.journals });
 		},
 	});
 

@@ -3,18 +3,18 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa6';
 import { getDailyQuoteFromStorage, getToday } from '../lib/helper';
+import { queryKeys } from '../lib/query-keys';
 
 const QuoteOfTheDay = () => {
 	const fetchQuote = async () => {
 		const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quote`);
 		if (!res.ok) throw new Error('Failed to fetch');
 		const data = await res.json();
-		console.log(data);
 		return data;
 	};
 
 	const { data: quote, isLoading } = useQuery({
-		queryKey: ['daily-quote'],
+		queryKey: queryKeys.dailyQuote,
 		queryFn: fetchQuote,
 
 		// Use stored quote if it exists
@@ -25,8 +25,6 @@ const QuoteOfTheDay = () => {
 		// Cache until end of the day
 		staleTime: 1000 * 60 * 60 * 24,
 	});
-
-	console.log('data', quote);
 
 	useEffect(() => {
 		if (!quote) return;

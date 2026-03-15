@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { fetcher } from '@/lib/helper';
+import { queryKeys } from '@/lib/query-keys';
 import { queryClient } from '@/lib/react-query';
 import { PostFormData } from '@/lib/schemas';
 import type { Post } from '@/types';
@@ -33,8 +34,8 @@ export default function PostTable({ posts }: PostTableProps) {
 				}),
 			}),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['posts'] });
-			queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.posts });
+			queryClient.invalidateQueries({ queryKey: queryKeys.myPosts });
 		},
 	});
 
@@ -54,8 +55,8 @@ export default function PostTable({ posts }: PostTableProps) {
 				}),
 			}),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['posts'] });
-			queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.posts });
+			queryClient.invalidateQueries({ queryKey: queryKeys.myPosts });
 		},
 	});
 
@@ -65,8 +66,8 @@ export default function PostTable({ posts }: PostTableProps) {
 				method: 'DELETE',
 			}),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['posts'] });
-			queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.posts });
+			queryClient.invalidateQueries({ queryKey: queryKeys.myPosts });
 		},
 	});
 

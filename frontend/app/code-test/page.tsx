@@ -1,10 +1,20 @@
-'use client'; // Required if using Next.js App Router
+'use client';
+
 import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/test-upload';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const Page = () => {
+	const router = useRouter();
+
+	useEffect(() => {
+		if (process.env.NODE_ENV === 'production') {
+			router.replace('/');
+		}
+	}, [router]);
+
 	const [file, setFile] = useState<File | null>(null);
 	const [uploading, setUploading] = useState(false);
 	const { data } = supabase.storage
@@ -31,7 +41,11 @@ const Page = () => {
 			setUploading(false);
 		}
 	};
-	console.log(data.publicUrl);
+
+	if (process.env.NODE_ENV === 'production') {
+		return null;
+	}
+
 	return (
 		<div className="p-4 flex flex-col gap-4">
 			<input

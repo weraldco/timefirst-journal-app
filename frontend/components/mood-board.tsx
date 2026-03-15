@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth } from '../context/auth-context';
 import { fetcher } from '../lib/helper';
+import { queryKeys } from '../lib/query-keys';
 import { MoodT } from '../types';
 
 type moodDataT = {
@@ -33,7 +34,7 @@ const MoodBoard = () => {
 			: 365;
 	};
 	const { data, isLoading, error } = useQuery<ResponseData>({
-		queryKey: ['mood-data'],
+		queryKey: queryKeys.moodData,
 		queryFn: () =>
 			fetcher(`${process.env.NEXT_PUBLIC_API_URL}/journal/mood`, {
 				method: 'POST',

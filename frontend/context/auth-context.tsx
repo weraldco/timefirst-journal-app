@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { createContext, ReactNode, useCallback, useContext } from 'react';
 import { fetcher } from '../lib/helper';
+import { queryKeys } from '../lib/query-keys';
 import { UserType } from '../types';
 
 // first we make a type for our AuthContext
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	// Fetch user session
 	const { data: user, isLoading } = useQuery({
-		queryKey: ['authUser'],
+		queryKey: queryKeys.auth,
 		queryFn: fetchUser,
 		staleTime: Infinity, // users data doesn't expire until we say no
 		retry: false, //Dont retry when 401 errors
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		mutationFn: logoutUser,
 		onSuccess: () => {
 			// Clear the cached
-			queryClient.setQueryData(['authUser'], null);
+			queryClient.setQueryData(queryKeys.auth, null);
 			queryClient.clear();
 			// redirect to login
 			router.replace('/login');
@@ -74,9 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		: 'unauthenticated';
 
 	const refresh = useCallback(() => {
-		queryClient.invalidateQueries({ queryKey: ['authUser'] });
+		queryClient.invalidateQueries({ queryKey: queryKeys.auth });
 	}, [queryClient]);
-	console.log('status', status);
+
 	return (
 		<AuthContext.Provider
 			value={{

@@ -7,6 +7,7 @@ import PostTable from '@/components/post-table';
 import QuoteOfTheDay from '@/components/quote-of-the-day';
 import { useAuth } from '@/context/auth-context';
 import { fetcher } from '@/lib/helper';
+import { queryKeys } from '@/lib/query-keys';
 import { FetchData } from '@/types';
 import type { Post } from '@/types';
 import { useQuery } from '@tanstack/react-query';
@@ -29,13 +30,13 @@ export default function DashboardPage() {
 	}, [status, router]);
 
 	const { data, isLoading, error } = useQuery<FetchData>({
-		queryKey: ['journals'],
+		queryKey: queryKeys.journals,
 		queryFn: () => fetcher(`${process.env.NEXT_PUBLIC_API_URL}/journal`),
 		enabled: status === 'authenticated',
 	});
 
 	const { data: postsData } = useQuery<MyPostsResponse>({
-		queryKey: ['my-posts'],
+		queryKey: queryKeys.myPosts,
 		queryFn: () =>
 			fetcher(`${process.env.NEXT_PUBLIC_API_URL}/post/my`),
 		enabled: status === 'authenticated',

@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase } from '@/lib/supabase';
 
-export async function uploadImage(file: any) {
+export async function uploadImage(file: File) {
 	// 1. Define a unique path (e.g., folder/filename)
 	const fileExt = file.name.split('.').pop();
 	const fileName = `${Math.random()}.${fileExt}`;
@@ -22,6 +21,5 @@ export async function uploadImage(file: any) {
 		data: { publicUrl },
 	} = supabase.storage.from('post-images').getPublicUrl(filePath);
 
-	console.log('Image URL:', publicUrl);
 	return publicUrl;
 }

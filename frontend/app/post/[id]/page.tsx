@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { fetcher } from '@/lib/helper';
+import { queryKeys } from '@/lib/query-keys';
 import type { Post } from '@/types';
 import BlogNav from '@/components/blog-nav';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ export default function PostPage() {
 	const id = params?.id as string;
 
 	const { data, isLoading, error } = useQuery<PostResponse>({
-		queryKey: ['post', id],
+		queryKey: queryKeys.postDetail(id),
 		queryFn: () => fetcher(`${process.env.NEXT_PUBLIC_API_URL}/post/${id}`),
 		enabled: !!id,
 	});

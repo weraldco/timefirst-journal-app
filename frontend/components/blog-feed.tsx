@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/lib/helper';
+import { queryKeys } from '@/lib/query-keys';
 import type { Post } from '@/types';
 import BlogNav from './blog-nav';
 import PostCard from './post-card';
@@ -16,7 +17,7 @@ export default function BlogFeed() {
 	const [typeFilter, setTypeFilter] = useState<string>('all');
 
 	const { data, isLoading, error } = useQuery<PostsResponse>({
-		queryKey: ['posts'],
+		queryKey: queryKeys.posts,
 		queryFn: () =>
 			fetcher(`${process.env.NEXT_PUBLIC_API_URL}/post`),
 		staleTime: 60 * 1000,

@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { fetcher } from '../lib/helper';
 import { queryClient } from '../lib/react-query';
+import { queryKeys } from '../lib/query-keys';
 import { JournalFormData } from '../lib/schemas';
 import { Journal } from '../types';
 import JournalAddFormModal from './journal-add-form-modal';
@@ -30,8 +31,8 @@ const JournalList = ({ journals }: PropsType) => {
 				body: JSON.stringify(newJournal),
 			}),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['journals'] });
-			queryClient.invalidateQueries({ queryKey: ['mood-data'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.journals });
+			queryClient.invalidateQueries({ queryKey: queryKeys.moodData });
 		},
 	});
 
@@ -41,8 +42,8 @@ const JournalList = ({ journals }: PropsType) => {
 				method: 'delete',
 			}),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['journals'] });
-			queryClient.invalidateQueries({ queryKey: ['mood-data'] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.journals });
+			queryClient.invalidateQueries({ queryKey: queryKeys.moodData });
 		},
 	});
 	const filteredJournals =
@@ -194,9 +195,7 @@ const JournalList = ({ journals }: PropsType) => {
 			{isUpdateFormModelOpen && (
 				<JournalUpdateFormModal
 					journal={editingJournal}
-					onUpdate={() => {
-						console.log('Udpating...');
-					}}
+					onUpdate={() => {}}
 					onClose={() => {
 						setIsUpdateFormModalOpen(false);
 						setEditingJournal(null);

@@ -3,15 +3,20 @@
 import { useAuth } from '@/context/auth-context';
 import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/query-keys';
 
 export default function LoginPage() {
 	const router = useRouter();
-	const { user, status, refresh } = useAuth();
-	const [error, setError] = useState<string>('');
+	const queryClient = useQueryClient();
+	const { user, status } = useAuth();
+	const redirectFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(
+		null,
+	);
 
 	const {
 		register,
@@ -27,8 +32,15 @@ export default function LoginPage() {
 		}
 	}, [status, user, router]);
 
+	useEffect(() => {
+		return () => {
+			if (redirectFallbackRef.current) {
+				clearTimeout(redirectFallbackRef.current);
+			}
+		};
+	}, []);
+
 	const onSubmit = async (value: LoginFormData) => {
-		setError('');
 		try {
 			const res = await fetch(
 				`${process.env.NEXT_PUBLIC_API_URL}/auth/signin`,
@@ -44,11 +56,21 @@ export default function LoginPage() {
 			);
 			const data = await res.json();
 			if (!res.ok) {
-				toast.error('Login Error', { description: data.error });
+				const errorMsg =
+					typeof data?.error === 'string'
+						? data.error
+						: data?.error?.message ?? 'Login failed';
+				toast.error('Login Error', { description: errorMsg });
 				return;
 			}
-			await refresh();
+			queryClient.setQueryData(queryKeys.auth, data.user);
 			toast.success('Success!', { description: 'Successfully logged in!' });
+			router.replace('/dashboard');
+			redirectFallbackRef.current = setTimeout(() => {
+				if (window.location.pathname.includes('/login')) {
+					window.location.href = '/dashboard';
+				}
+			}, 500);
 		} catch (err) {
 			toast.error('Error', { description: `Something went wrong! ${err}` });
 		}
@@ -110,12 +132,6 @@ export default function LoginPage() {
 							</p>
 						)}
 					</div>
-
-					{error && (
-						<div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-							{error}
-						</div>
-					)}
 
 					<button
 						type="submit"

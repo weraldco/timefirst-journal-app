@@ -24,13 +24,19 @@ export const fetcher = async <T>(
 			let errorMessage = `Error: ${res.status}`;
 			try {
 				const errorData = await res.json();
-				if (errorData.error) errorMessage = errorData.error;
+				errorMessage =
+					typeof errorData.error === 'string'
+						? errorData.error
+						: errorData.error?.message ?? errorMessage;
 			} catch {}
 			throw new Error(errorMessage);
 		}
 		return res.json();
 	} catch (error) {
-		if (error instanceof TypeError && error.message === 'Failed to fetch!') {
+		if (
+			error instanceof TypeError &&
+			(error.message === 'Failed to fetch' || error.message === 'Failed to fetch!')
+		) {
 			throw new Error('Network error: Please check your internet connections.');
 		}
 		throw error;
@@ -50,7 +56,6 @@ export const getDailyQuoteFromStorage = () => {
 
 	// parse the save data
 	const parsed = JSON.parse(saved);
-	console.log('parsed', parsed.quote);
 	// check if save date equals to todays date,
 	// if yes return parse quote else undefined
 	return parsed.date === getToday() ? parsed.quote : undefined;

@@ -114,7 +114,6 @@ function PostFormModalForm({ post, onSave, onClose }: PostFormModalProps) {
 				setIsUploading(true);
 				try {
 					imageUrl = await uploadPostImage(imageFile, user.id);
-					console.log('url', imageUrl);
 				} catch (err) {
 					toast.error(
 						err instanceof Error ? err.message : 'Image upload failed',
@@ -134,7 +133,6 @@ function PostFormModalForm({ post, onSave, onClose }: PostFormModalProps) {
 				tags: selectedTags,
 				imageUrl,
 			});
-			console.log('payload', { ...data, tags: selectedTags, imageUrl });
 			onClose();
 		} catch {
 			toast.error('Error saving post');

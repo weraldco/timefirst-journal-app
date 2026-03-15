@@ -18,13 +18,10 @@ export async function uploadPostImage(
 	const ext = file.name.split('.').pop() || 'jpg';
 	const filePath = `${userId}/${Date.now()}-${file.name}`;
 
-	console.log('path', filePath);
-
 	const { error } = await supabase.storage.from(BUCKET).upload(filePath, file, {
 		cacheControl: '3600',
 		upsert: false,
 	});
-	console.log('error', error);
 	if (error) {
 		throw new Error(error.message || 'Upload failed');
 	}
