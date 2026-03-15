@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { fetcher } from '../lib/helper';
 import { queryClient } from '../lib/react-query';
 import { queryKeys } from '../lib/query-keys';
@@ -17,6 +17,7 @@ interface PropsType {
 const JournalList = ({ journals }: PropsType) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedMood, setSelectedMood] = useState<string>('all');
+	const [page, setPage] = useState(1);
 	const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 	const [isAddFormModalOpen, setIsAddFormModalOpen] = useState(false);
@@ -46,33 +47,63 @@ const JournalList = ({ journals }: PropsType) => {
 			queryClient.invalidateQueries({ queryKey: queryKeys.moodData });
 		},
 	});
-	const filteredJournals =
-		selectedMood === 'all'
-			? journals
-			: journals.filter((journal) => journal.mood === selectedMood);
+	const filteredJournals = useMemo(() => {
+		const byMood =
+			selectedMood === 'all'
+				? journals
+				: journals.filter((journal) => journal.mood === selectedMood);
 
-	const handleViewJournal = (journal: Journal) => {
+		const bySearch = searchQuery
+			? byMood.filter((journal) =>
+					`${journal.title} ${journal.content}`
+						.toLowerCase()
+						.includes(searchQuery.toLowerCase()),
+				)
+			: byMood;
+
+		// Reset page if current page is now out of range
+		const maxPage = Math.max(1, Math.ceil(bySearch.length / 8));
+		if (page > maxPage) setPage(maxPage);
+
+		return bySearch;
+	}, [journals, selectedMood, searchQuery, page]);
+
+	const pageSize = 8;
+	const totalPages = Math.max(1, Math.ceil(filteredJournals.length / pageSize));
+	const startIndex = (page - 1) * pageSize;
+	const paginatedJournals = filteredJournals.slice(
+		startIndex,
+		startIndex + pageSize,
+	);
+
+	const handleViewJournal = useCallback((journal: Journal) => {
 		setSelectedJournal(journal);
 		setIsViewModalOpen(true);
-	};
+	}, []);
 
-	const handleEditJournal = (journal: Journal) => {
+	const handleEditJournal = useCallback((journal: Journal) => {
 		setEditingJournal(journal);
 		setIsAddFormModalOpen(true);
-	};
+	}, []);
 
-	const handleDeleteJournal = (id: string) => {
-		deleteJournalMutation.mutate(id);
-	};
+	const handleDeleteJournal = useCallback(
+		(id: string) => {
+			deleteJournalMutation.mutate(id);
+		},
+		[deleteJournalMutation],
+	);
 
-	const handleSaveJournal = (data: JournalFormData) => {
-		createJournalMutation.mutate(data);
-	};
+	const handleSaveJournal = useCallback(
+		(data: JournalFormData) => {
+			createJournalMutation.mutate(data);
+		},
+		[createJournalMutation],
+	);
 
-	const handleNewJournal = () => {
+	const handleNewJournal = useCallback(() => {
 		setEditingJournal(null);
 		setIsAddFormModalOpen(true);
-	};
+	}, []);
 
 	const uniqueMoods = Array.from(new Set(journals.map((j) => j.mood)));
 
@@ -112,6 +143,7 @@ const JournalList = ({ journals }: PropsType) => {
 								value={selectedMood}
 								onChange={(e) => {
 									setSelectedMood(e.target.value);
+									setPage(1);
 								}}
 								className="appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2 pr-8 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 							>
@@ -156,17 +188,45 @@ const JournalList = ({ journals }: PropsType) => {
 						</p>
 					</div>
 				) : (
-					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						{filteredJournals.map((journal) => (
-							<JournalItem
-								key={journal.id}
-								journal={journal}
-								onView={handleViewJournal}
-								onEdit={handleEditJournal}
-								onDelete={handleDeleteJournal}
-							/>
-						))}
-					</div>
+					<>
+						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+							{paginatedJournals.map((journal) => (
+								<JournalItem
+									key={journal.id}
+									journal={journal}
+									onView={handleViewJournal}
+									onEdit={handleEditJournal}
+									onDelete={handleDeleteJournal}
+								/>
+							))}
+						</div>
+
+						{totalPages > 1 && (
+							<div className="mt-8 flex items-center justify-center gap-4">
+								<button
+									type="button"
+									onClick={() => setPage((p) => Math.max(1, p - 1))}
+									disabled={page === 1}
+									className="rounded-lg border border-gray-300 px-3 py-1 text-sm text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300"
+								>
+									Previous
+								</button>
+								<span className="text-sm text-gray-600 dark:text-gray-300">
+									Page {page} of {totalPages}
+								</span>
+								<button
+									type="button"
+									onClick={() =>
+										setPage((p) => Math.min(totalPages, p + 1))
+									}
+									disabled={page === totalPages}
+									className="rounded-lg border border-gray-300 px-3 py-1 text-sm text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300"
+								>
+									Next
+								</button>
+							</div>
+						)}
+					</>
 				)}
 			</main>
 			{/* Modals */}

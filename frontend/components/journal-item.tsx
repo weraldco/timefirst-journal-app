@@ -1,6 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
+import { memo } from 'react';
 import { Journal, MoodT } from '../types';
 
 interface JournalItemProps {
@@ -10,7 +11,7 @@ interface JournalItemProps {
 	onDelete: (id: string) => void;
 }
 
-export default function JournalItem({
+function JournalItemComponent({
 	journal,
 	onView,
 	onEdit,
@@ -133,3 +134,7 @@ export default function JournalItem({
 		</div>
 	);
 }
+
+const JournalItem = memo(JournalItemComponent);
+
+export default JournalItem;

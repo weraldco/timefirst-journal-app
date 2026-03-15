@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { memo } from 'react';
 import type { Post } from '@/types';
 
 const typeColors: Record<string, string> = {
@@ -18,7 +19,7 @@ interface PostCardProps {
 	post: Post;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+function PostCardComponent({ post }: PostCardProps) {
 	const excerpt =
 		post.description.length > 150
 			? `${post.description.slice(0, 150)}...`
@@ -70,3 +71,7 @@ export default function PostCard({ post }: PostCardProps) {
 		</article>
 	);
 }
+
+const PostCard = memo(PostCardComponent);
+
+export default PostCard;
