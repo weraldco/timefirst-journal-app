@@ -65,7 +65,7 @@ export const journalController = {
 	create: async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const userId = req.user?.id as string;
-			const { title, content, mood, tags } = req.body;
+			const { title, content, mood, tags, date } = req.body;
 			if (!title || !content || !mood) {
 				return res.status(401).json({ error: 'All fields are required' });
 			}
@@ -76,6 +76,7 @@ export const journalController = {
 				mood,
 				tags,
 				userId: userId,
+				date,
 			});
 			res.status(201).json({
 				success: true,

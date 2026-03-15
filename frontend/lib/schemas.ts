@@ -13,6 +13,10 @@ export const journalSchema = z.object({
 		message: 'Invalid mood',
 	}),
 	tags: z.array(z.string()),
+	date: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
+		.optional(),
 });
 
 export const postSchema = z.object({

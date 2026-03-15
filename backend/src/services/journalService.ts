@@ -6,6 +6,7 @@ export interface JournalDataT {
 	content: string;
 	mood: string;
 	tags: string[];
+	date?: string;
 }
 
 export interface UpdateJournalDataT {
@@ -40,8 +41,12 @@ export const journalService = {
 
 	// POST - Create new journal
 	create: async (data: JournalDataT) => {
+		const { date, ...rest } = data;
 		return await prisma.journal.create({
-			data,
+			data: {
+				...rest,
+				...(date ? { createdAt: new Date(date) } : {}),
+			},
 		});
 	},
 
