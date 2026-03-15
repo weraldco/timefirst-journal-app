@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { getToday } from '../lib/helper';
 import { JournalFormData, journalSchema } from '../lib/schemas';
 import { Journal, moodValues } from '../types';
 
@@ -52,6 +53,7 @@ export default function JournalAddFormModal({
 			content: '',
 			mood: 'null',
 			tags: [],
+			date: getToday(),
 		},
 	});
 
@@ -62,6 +64,7 @@ export default function JournalAddFormModal({
 				content: journal.content,
 				mood: journal.mood,
 				tags: journal.tags ?? [],
+				date: journal.createdAt.split('T')[0],
 			});
 		}
 	}, [journal, reset]);
@@ -149,6 +152,27 @@ export default function JournalAddFormModal({
 							<p className="mt-1 text-sm text-red-600">
 								{errors.title.message}
 							</p>
+						)}
+					</div>
+
+					<div>
+						<label
+							htmlFor="date"
+							className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+						>
+							Entry date
+						</label>
+						<input
+							{...register('date')}
+							type="date"
+							id="date"
+							className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+						/>
+						<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+							Defaults to today. Change it to log a previous day.
+						</p>
+						{errors.date && (
+							<p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
 						)}
 					</div>
 
